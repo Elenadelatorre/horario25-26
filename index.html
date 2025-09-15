@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Mi Turno</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>📅 Mi Turno</h1>
+    <div class="toolbar-desktop" style="
+          margin-bottom: 10px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        ">
+      <button onclick="cambiarSemana(-1)">⬅ Semana anterior</button>
+      <span id="semanaLabel">Semana actual</span>
+      <div>
+        <button onclick="cambiarSemana(1)">Semana siguiente ➡</button>
+      </div>
+    </div>
+
+    <div class="toolbar-mobile">
+      <button id="btnPrevDia" title="Día anterior">⏮️</button>
+      <button id="btnHoy" title="Hoy">📍</button>
+      <button id="btnNextDia" title="Día siguiente">⏭️</button>
+    </div>
+
+    <div id="leyenda" style="margin: 10px 0 14px; font-size: 13px; color: #4a148c;">
+      <strong>Leyenda:</strong> Escribe <strong>AAPP</strong> (asuntos propios) o <strong>VACACIONES</strong> para
+      ocultar las clases fijas de ese día.
+    </div>
+
+    <div class="table-responsive">
+      <table id="horario">
+        <thead>
+          <tr>
+            <th>Hora</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Filas generadas automáticamente con JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <button id="saveBtn">💾 Guardar anotaciones</button>
+    <button onclick="imprimirSemana()" style="margin-left: 10px;">🖨️ Imprimir</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
