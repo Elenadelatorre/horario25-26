@@ -1,4 +1,7 @@
-const API_URL = 'http://localhost:4000/api/horario';
+const API_URL = window.location.hostname.includes('localhost')
+  ? 'http://localhost:4000/api/horario'
+  : '/api/horario';
+
 const tableBody = document.querySelector('#horario tbody');
 const diasOrden = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
@@ -67,11 +70,11 @@ const diasBloqueados = {}; // { [semanaOffset]: { [diaNombre]: 'VACACIONES'|'AAP
 
 // Colores para Pádel por día
 const padelColorPorDia = {
-  Lunes: '#f8bbd0',       // rosa claro
-  Martes: '#f48fb1',      // rosa medio
-  Miércoles: '#f06292',   // rosa fuerte
-  Jueves: '#ec407a',      // rosa intenso
-  Viernes: '#ff80ab'      // rosa vivo
+  Lunes: '#f8bbd0', // rosa claro
+  Martes: '#f48fb1', // rosa medio
+  Miércoles: '#f06292', // rosa fuerte
+  Jueves: '#ec407a', // rosa intenso
+  Viernes: '#ff80ab' // rosa vivo
 };
 
 // Propietario de cada fila por día (para gestionar rowSpan y uniones)
@@ -84,7 +87,12 @@ const dayCellOwner = {
 };
 
 function aplicarColorPorPalabraClave(td) {
-  const clasesColor = ['color-funcional', 'color-gap', 'color-pilates', 'color-salacardio'];
+  const clasesColor = [
+    'color-funcional',
+    'color-gap',
+    'color-pilates',
+    'color-salacardio'
+  ];
   td.classList.remove(...clasesColor);
   const titulo = td.querySelector('.titulo-fijo')?.textContent || '';
   const nota = td.querySelector('.anotacion')?.textContent || '';
@@ -92,7 +100,9 @@ function aplicarColorPorPalabraClave(td) {
 
   // Bloqueo por VACACIONES/AAPP
   if (texto.includes('vacaciones') || texto.includes('aapp')) {
-    td.style.backgroundColor = texto.includes('vacaciones') ? '#d7ccc8' : '#bcaaa4';
+    td.style.backgroundColor = texto.includes('vacaciones')
+      ? '#d7ccc8'
+      : '#bcaaa4';
     return;
   }
 
@@ -142,7 +152,7 @@ function saveCache() {
       diasBloqueados
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
-  } catch (_) { }
+  } catch (_) {}
 }
 function loadCache() {
   try {
@@ -169,7 +179,9 @@ async function guardarCelda(td) {
         usuario: 'elena',
         semanas: { [semanaOffset]: semanas[semanaOffset] || {} },
         nuevasClases: { [semanaOffset]: nuevasClases[semanaOffset] || [] },
-        viernesRotativo: { [semanaOffset]: viernesRotativo[semanaOffset] || null },
+        viernesRotativo: {
+          [semanaOffset]: viernesRotativo[semanaOffset] || null
+        },
         diasBloqueados: { [semanaOffset]: diasBloqueados[semanaOffset] || {} }
       })
     });
@@ -191,7 +203,9 @@ async function guardarSemanaCompleta() {
         usuario: 'elena',
         semanas: { [semanaOffset]: semanas[semanaOffset] || {} },
         nuevasClases: { [semanaOffset]: nuevasClases[semanaOffset] || [] },
-        viernesRotativo: { [semanaOffset]: viernesRotativo[semanaOffset] || null },
+        viernesRotativo: {
+          [semanaOffset]: viernesRotativo[semanaOffset] || null
+        },
         diasBloqueados: { [semanaOffset]: diasBloqueados[semanaOffset] || {} }
       })
     });
@@ -230,15 +244,25 @@ function construirCabecera() {
     const th = document.createElement('th');
     const diaNumero = fecha.getDate();
     const bloqueo = (diasBloqueados[semanaOffset] || {})[diaNombre];
-    const diaTexto = `${diaNombre.toLowerCase()} ${String(diaNumero).padStart(2, '0')}`;
+    const diaTexto = `${diaNombre.toLowerCase()} ${String(diaNumero).padStart(
+      2,
+      '0'
+    )}`;
     if (diaNombre === 'Viernes') {
       const turnoId = viernesRotativo[semanaOffset] || 1;
-      const turnoLabel = viernesTurnos.find((t) => t.id === turnoId)?.label || '';
+      const turnoLabel =
+        viernesTurnos.find((t) => t.id === turnoId)?.label || '';
       th.innerHTML = `<div style="display:flex;justify-content:center;align-items:center;gap:6px;">
           <span>${diaTexto}</span>
           <button aria-label="Configurar viernes" title="Configurar viernes" style="padding:2px 6px;font-size:14px;line-height:1;border-radius:6px;">⚙️</button>
-          ${bloqueo ? `<span style="font-size:12px;padding:2px 6px;border-radius:6px;background:${bloqueo === 'vacaciones' ? '#d7ccc8' : '#bcaaa4'};color:#4e342e;">${bloqueo.toUpperCase()}</span>
-          <button aria-label="Quitar bloqueo" title="Quitar bloqueo" style="padding:2px 6px;font-size:12px;line-height:1;border-radius:6px;">✖</button>` : ''}
+          ${
+            bloqueo
+              ? `<span style="font-size:12px;padding:2px 6px;border-radius:6px;background:${
+                  bloqueo === 'vacaciones' ? '#d7ccc8' : '#bcaaa4'
+                };color:#4e342e;">${bloqueo.toUpperCase()}</span>
+          <button aria-label="Quitar bloqueo" title="Quitar bloqueo" style="padding:2px 6px;font-size:12px;line-height:1;border-radius:6px;">✖</button>`
+              : ''
+          }
         </div>
         <div style="margin-top:4px;font-size:12px;color:#1b5e20;">${turnoLabel}</div>`;
 
@@ -247,7 +271,10 @@ function construirCabecera() {
         e.stopPropagation();
         // Crear panel con opciones visibles
         let panel = th.querySelector('.turno-panel');
-        if (panel) { panel.remove(); return; }
+        if (panel) {
+          panel.remove();
+          return;
+        }
         panel = document.createElement('div');
         panel.className = 'turno-panel';
         panel.style.position = 'absolute';
@@ -297,7 +324,9 @@ function construirCabecera() {
       });
       // Quitar bloqueo si existe
       if (bloqueo) {
-        const btnClear = th.querySelector('button[aria-label="Quitar bloqueo"]');
+        const btnClear = th.querySelector(
+          'button[aria-label="Quitar bloqueo"]'
+        );
         btnClear?.addEventListener('click', async (e) => {
           e.stopPropagation();
           if (diasBloqueados[semanaOffset]) {
@@ -311,11 +340,19 @@ function construirCabecera() {
     } else {
       th.innerHTML = `<div style="display:flex;justify-content:center;align-items:center;gap:6px;">
           <span>${diaTexto}</span>
-          ${bloqueo ? `<span style=\"font-size:12px;padding:2px 6px;border-radius:6px;background:${bloqueo === 'vacaciones' ? '#d7ccc8' : '#bcaaa4'};color:#4e342e;\">${bloqueo.toUpperCase()}</span>
-          <button aria-label=\"Quitar bloqueo\" title=\"Quitar bloqueo\" style=\"padding:2px 6px;font-size:12px;line-height:1;border-radius:6px;\">✖</button>` : ''}
+          ${
+            bloqueo
+              ? `<span style=\"font-size:12px;padding:2px 6px;border-radius:6px;background:${
+                  bloqueo === 'vacaciones' ? '#d7ccc8' : '#bcaaa4'
+                };color:#4e342e;\">${bloqueo.toUpperCase()}</span>
+          <button aria-label=\"Quitar bloqueo\" title=\"Quitar bloqueo\" style=\"padding:2px 6px;font-size:12px;line-height:1;border-radius:6px;\">✖</button>`
+              : ''
+          }
         </div>`;
       if (bloqueo) {
-        const btnClear = th.querySelector('button[aria-label="Quitar bloqueo"]');
+        const btnClear = th.querySelector(
+          'button[aria-label="Quitar bloqueo"]'
+        );
         btnClear?.addEventListener('click', async (e) => {
           e.stopPropagation();
           if (diasBloqueados[semanaOffset]) {
@@ -360,7 +397,7 @@ function cargarSemana() {
 function obtenerTextoClaveCelda(td) {
   const titulo = td.querySelector('.titulo-fijo')?.textContent?.trim();
   const anotacion = td.querySelector('.anotacion')?.textContent?.trim();
-  const texto = (titulo && titulo.length > 0) ? titulo : (anotacion || '');
+  const texto = titulo && titulo.length > 0 ? titulo : anotacion || '';
   return texto.toLowerCase();
 }
 
@@ -408,7 +445,9 @@ function generarTabla() {
   construirCabecera();
 
   // Reiniciar propietarios
-  diasOrden.forEach((d) => { dayCellOwner[d] = []; });
+  diasOrden.forEach((d) => {
+    dayCellOwner[d] = [];
+  });
 
   const skipCells = {
     Lunes: {},
@@ -437,19 +476,22 @@ function generarTabla() {
         dayCellOwner[dia][rowIndex] = td;
         const fechaDia = new Date(lunes);
         fechaDia.setDate(lunes.getDate() + diaIndex);
-        if (hoy.toDateString() === fechaDia.toDateString()) td.classList.add('col-hoy');
+        if (hoy.toDateString() === fechaDia.toDateString())
+          td.classList.add('col-hoy');
         const span = document.createElement('span');
         span.classList.add('titulo-fijo');
         span.textContent = bloqueo === 'vacaciones' ? 'VACACIONES' : 'AAPP';
         span.style.color = '#4e342e';
-        td.style.backgroundColor = bloqueo === 'vacaciones' ? '#d7ccc8' : '#bcaaa4';
+        td.style.backgroundColor =
+          bloqueo === 'vacaciones' ? '#d7ccc8' : '#bcaaa4';
         td.appendChild(span);
         td.rowSpan = horasPorDia;
         // Respetar vista móvil: sólo añadir la celda si estamos mostrando este día
         if (diaIndexMovil === null || diaIndexMovil === diaIndex) {
           fila.appendChild(td);
         }
-        for (let i = 1; i < horasPorDia; i++) skipCells[dia][rowIndex + i] = true;
+        for (let i = 1; i < horasPorDia; i++)
+          skipCells[dia][rowIndex + i] = true;
         return;
       }
       if (bloqueo && rowIndex > 0) {
@@ -472,14 +514,11 @@ function generarTabla() {
 
       // Clases fijas (excepto viernes o día bloqueado)
       const esViernes = dia === 'Viernes';
-      const clasesDia = (bloqueo ? [] : (!esViernes ? horarioFijo[dia] : []));
+      const clasesDia = bloqueo ? [] : !esViernes ? horarioFijo[dia] : [];
       let claseObj = clasesDia?.find(
         (c) => horaObj.inicio >= c.inicio && horaObj.inicio < c.fin
       );
-      if (
-        claseObj &&
-        horaObj.inicio === claseObj.inicio
-      ) {
+      if (claseObj && horaObj.inicio === claseObj.inicio) {
         const spanFijo = document.createElement('span');
         spanFijo.textContent = claseObj.clase;
         spanFijo.classList.add('titulo-fijo');
@@ -539,10 +578,20 @@ function generarTabla() {
             btnBorrarPrev.style.cursor = 'pointer';
             btnBorrarPrev.addEventListener('click', async (e) => {
               e.stopPropagation();
-              nuevasClases[semanaOffset] = (nuevasClases[semanaOffset] || []).filter(
-                (c) => !(c.dia === dia && c.inicio === horaObj.inicio && c.titulo === clase.titulo)
+              nuevasClases[semanaOffset] = (
+                nuevasClases[semanaOffset] || []
+              ).filter(
+                (c) =>
+                  !(
+                    c.dia === dia &&
+                    c.inicio === horaObj.inicio &&
+                    c.titulo === clase.titulo
+                  )
               );
-              if (semanas[semanaOffset] && semanas[semanaOffset][clase.titulo]) {
+              if (
+                semanas[semanaOffset] &&
+                semanas[semanaOffset][clase.titulo]
+              ) {
                 delete semanas[semanaOffset][clase.titulo];
               }
               td.innerHTML = '';
@@ -567,10 +616,14 @@ function generarTabla() {
         const text = anotacion.textContent?.toLowerCase() || '';
         if (text.includes('vacaciones') || text.includes('aapp')) {
           if (!diasBloqueados[semanaOffset]) diasBloqueados[semanaOffset] = {};
-          diasBloqueados[semanaOffset][dia] = text.includes('vacaciones') ? 'vacaciones' : 'aapp';
+          diasBloqueados[semanaOffset][dia] = text.includes('vacaciones')
+            ? 'vacaciones'
+            : 'aapp';
           // Limpiar cualquier nuevasClases del día bloqueado
           if (nuevasClases[semanaOffset]) {
-            nuevasClases[semanaOffset] = nuevasClases[semanaOffset].filter((c) => c.dia !== dia);
+            nuevasClases[semanaOffset] = nuevasClases[semanaOffset].filter(
+              (c) => c.dia !== dia
+            );
           }
           // Persistir y regenerar inmediatamente
           guardarSemanaCompleta();
@@ -605,13 +658,14 @@ function generarTabla() {
             e.stopPropagation();
             inputTitulo.remove();
             btnBorrar.remove();
-            const existingTitle = td.querySelector('.titulo-fijo')?.textContent || '';
+            const existingTitle =
+              td.querySelector('.titulo-fijo')?.textContent || '';
             if (existingTitle && semanas[semanaOffset]?.[existingTitle]) {
               delete semanas[semanaOffset][existingTitle];
             }
-            nuevasClases[semanaOffset] = (nuevasClases[semanaOffset] || []).filter(
-              (c) => !(c.dia === dia && c.inicio === horaObj.inicio)
-            );
+            nuevasClases[semanaOffset] = (
+              nuevasClases[semanaOffset] || []
+            ).filter((c) => !(c.dia === dia && c.inicio === horaObj.inicio));
             td.style.backgroundColor = '#ffffff';
             const anotacionDiv = td.querySelector('.anotacion');
             if (anotacionDiv) anotacionDiv.textContent = '';
@@ -629,8 +683,11 @@ function generarTabla() {
               const lower = tituloNuevo.toLowerCase();
               // Si el título es VACACIONES/AAPP, bloquear día completo
               if (lower.includes('vacaciones') || lower.includes('aapp')) {
-                if (!diasBloqueados[semanaOffset]) diasBloqueados[semanaOffset] = {};
-                diasBloqueados[semanaOffset][dia] = lower.includes('vacaciones') ? 'vacaciones' : 'aapp';
+                if (!diasBloqueados[semanaOffset])
+                  diasBloqueados[semanaOffset] = {};
+                diasBloqueados[semanaOffset][dia] = lower.includes('vacaciones')
+                  ? 'vacaciones'
+                  : 'aapp';
                 // Persistir y regenerar inmediatamente
                 guardarSemanaCompleta();
                 tableBody.innerHTML = '';
@@ -704,12 +761,19 @@ function irAHoy() {
   try {
     const res = await fetch(API_URL, { method: 'GET' });
     const data = await res.json();
-    const hasData = data && (data.semanas || data.nuevasClases || data.viernesRotativo || data.diasBloqueados);
+    const hasData =
+      data &&
+      (data.semanas ||
+        data.nuevasClases ||
+        data.viernesRotativo ||
+        data.diasBloqueados);
     if (hasData) {
       if (data?.semanas) Object.assign(semanas, data.semanas);
       if (data?.nuevasClases) Object.assign(nuevasClases, data.nuevasClases);
-      if (data?.viernesRotativo) Object.assign(viernesRotativo, data.viernesRotativo);
-      if (data?.diasBloqueados) Object.assign(diasBloqueados, data.diasBloqueados);
+      if (data?.viernesRotativo)
+        Object.assign(viernesRotativo, data.viernesRotativo);
+      if (data?.diasBloqueados)
+        Object.assign(diasBloqueados, data.diasBloqueados);
       saveCache();
     } else {
       const cache = loadCache();
@@ -739,7 +803,8 @@ function irAHoy() {
     // Empezar mostrando el día de hoy
     const hoy = new Date();
     let idx = hoy.getDay();
-    if (idx === 0 || idx === 6) idx = 0; else idx = idx - 1;
+    if (idx === 0 || idx === 6) idx = 0;
+    else idx = idx - 1;
     diaIndexMovil = idx;
     tableBody.innerHTML = '';
     generarTabla();
@@ -774,7 +839,7 @@ function irAHoy() {
   // Cambiar modo al redimensionar
   window.addEventListener('resize', () => {
     const isNowMobile = window.matchMedia('(max-width: 768px)').matches;
-    diaIndexMovil = isNowMobile ? (diaIndexMovil ?? 0) : null;
+    diaIndexMovil = isNowMobile ? diaIndexMovil ?? 0 : null;
     tableBody.innerHTML = '';
     generarTabla();
   });
